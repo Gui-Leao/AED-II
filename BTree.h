@@ -22,16 +22,16 @@ typedef struct b_tree{
     BTreeNode *root;
 }BTree;
 
-// Tree operations
-BTree *createBTree();
-void Insert(BTreeNode **root, int key);
-void inOrder(BTreeNode *root);
-void imprimirPorNiveis(BTreeNode *raiz);
 
-// Node operations (internal use)
+BTree *createBTree();
+void Insert(BTree *b_tree, int key);
+void inOrder(BTreeNode *root);
+void printInLevels(BTreeNode *raiz);
 BTreeNode *createBTreeNode(bool is_leaf);
 void insertNonFull(BTreeNode *node, int key);
 void splitChild(BTreeNode *parent, int index);
+int lowerBound(int keus[],int n, int key);
+BTreeNode * searchBTree(BTreeNode *node,int key);
 
 
 #endif 

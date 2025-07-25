@@ -3,6 +3,7 @@
 
 
 BTree *createBTree(){
+
     BTree *b_tree = (BTree *)malloc(sizeof(BTree));
     if(b_tree){
         b_tree->root = NULL;
@@ -25,24 +26,25 @@ BTreeNode *createBTreeNode(bool is_leaf) {
 }
 
 
-void imprimirPorNiveis(BTreeNode *raiz) {
+void printInLevels(BTreeNode *raiz) {
+
     if (raiz == NULL) return;
 
     Queue *q = createQueue();
     enqueue(q, raiz);
 
-    while (!filaVazia(q)) {
-        int nivelSize = 0;
-        QueueNode temp = q->front;
+    while (!emptyQueue(q)) {
+        int level_size = 0;
+        QueueNode *temp = q->front;
         // Conta quantos nós existem neste nível
         while (temp) {
-            nivelSize++;
+            level_size++;
             temp = temp->next;
         }
 
         // Imprime todos os nós deste nível
-        for (int i = 0; i < nivelSize; i++) {
-            struct BTreeNode *atual = dequeue(q);
+        for (int i = 0; i < level_size; i++) {
+            BTreeNode *atual = dequeue(q);
 
             // Imprime as chaves reais (não todas as posições do array)
             printf("[");
@@ -67,6 +69,7 @@ void imprimirPorNiveis(BTreeNode *raiz) {
 }
 
 void splitChild(BTreeNode *parent, int index) {
+
     BTreeNode *child = parent->children[index];
     BTreeNode *new_node = createBTreeNode(child->is_leaf);
     
@@ -99,6 +102,7 @@ void splitChild(BTreeNode *parent, int index) {
 }
 
 void insertNonFull(BTreeNode *node, int key) {
+
     int i = node->num_keys - 1;
     
     if (node->is_leaf) {
@@ -125,27 +129,29 @@ void insertNonFull(BTreeNode *node, int key) {
     }
 }
 
-void Insert(BTreeNode **root, int key) {
-    BTreeNode *aux_node = *root;
+void Insert(BTree *b_tree, int key) {
+
+    BTreeNode *aux_node = b_tree->root;
 
     if (aux_node == NULL) {
-        // arvore vazia
-        *root = createBTreeNode(true);
-        (*root)->keys[0] = key;
-        (*root)->num_keys = 1;
+        // Árvore vazia
+        b_tree->root = createBTreeNode(true);
+        b_tree->root->keys[0] = key;
+        b_tree->root->num_keys = 1;
     } else {
         if (aux_node->num_keys == M - 1) {
-            //caso o nó esteja cheio
+            //Caso o nó esteja cheio
             BTreeNode *new_root = createBTreeNode(false);
             new_root->children[0] = aux_node;
             splitChild(new_root, 0);
-            *root = new_root;
+            b_tree->root = new_root;
         }
-        insertNonFull(*root, key);
+        insertNonFull(b_tree->root, key);
     }
 }
 
 void inOrder(BTreeNode *root) {
+
     if (root != NULL) {
         int i;
         for (i = 0; i < root->num_keys; i++) {
@@ -155,3 +161,36 @@ void inOrder(BTreeNode *root) {
         inOrder(root->children[i]);
     }
 }
+
+
+int lowerBound(int keys[], int n, int key) {
+
+    int left = 0, right = n;
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        if (keys[mid] < key) left = mid + 1;
+        else right = mid;
+        
+    }
+
+    return left;
+}
+
+BTreeNode * searchBTree(BTreeNode *node,int key){
+
+    BTreeNode *aux_node = node;
+    while(aux_node){
+        int ind = lowerBound(aux_node->keys,aux_node->num_keys,key);
+        if (ind < aux_node->num_keys && aux_node->keys[ind] == key) {
+            printf("Valor encontrado : %d\n",aux_node->keys[ind]);
+            return aux_node;
+        }
+        if(aux_node->is_leaf) return NULL;
+
+        aux_node = aux_node->children[ind];
+    }
+
+    return NULL;
+}
+

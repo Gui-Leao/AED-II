@@ -13,13 +13,13 @@ typedef struct queue_node {
 } QueueNode;
 
 typedef struct queue{
-    QueueNode front, rear;
+    QueueNode *front, *rear;
 } Queue;
 
-QueueNode createQueueNode(BTreeNode *tree_node);
-Queue createQueue();
-bool emptyQueue(Queue q);
+QueueNode * createQueueNode(BTreeNode *tree_node);
+Queue * createQueue();
+bool emptyQueue(Queue *q);
 void enqueue(Queue *q,BTreeNode *tree_node);
-BTreeNode dequeue(Queue *q);
+BTreeNode * dequeue(Queue *q);
 
 #endif
