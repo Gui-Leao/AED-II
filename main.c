@@ -1,16 +1,37 @@
 #include "BTree.h"
 #include "queue.h"
 
+typedef struct {
+    unsigned int id;          
+    char nome[50];
+    int idade;
+} Aluno;
+
 int main(){
-    int value;
+    unsigned int value;
     char opc[20];
     BTree *b_tree= createBTree();
     //BTreeNode *root = NULL;
 
     while(scanf("%s",opc) != EOF){
         if (strcmp("insert",opc)==0){
-            scanf("%d",&value);
-            Insert(b_tree,value);
+            Aluno aluno;
+            scanf("%u", &aluno.id);
+            getchar(); // consome o '\n' após o id
+            fgets(aluno.nome, sizeof(aluno.nome), stdin);
+            aluno.nome[strcspn(aluno.nome, "\n")] = 0; // remove o '\n' do final
+            scanf("%d", &aluno.idade);
+            getchar(); // consome o '\n' após a idade
+
+            char filename[64];
+            snprintf(filename, sizeof(filename), "DB/aluno_%u.txt", aluno.id);
+            FILE *fp = fopen(filename, "w");
+            if (fp) {
+                fprintf(fp, "%u %s %d\n", aluno.id, aluno.nome, aluno.idade);
+                fclose(fp);
+                fp = fopen(filename, "r"); 
+            }
+            Insert(b_tree, aluno.id, fp);
         }
         // else if (strcmp("delete",opc)==0){
         //     scanf("%d",&value);
@@ -29,12 +50,12 @@ int main(){
             if(b_tree->root){
                 scanf("%d",&value);
                 BTreeNode *node = searchBTree(b_tree->root,value);
-                if(node){
-                    inOrder(node);
-                    printf("\n");
-                }
+                // if(node){
+                //     inOrder(node);
+                //     printf("\n");
+                // }
                     
-                else printf("Não encontrado !!\n");
+                //else printf("Não encontrado !!\n");
             
             }
         }

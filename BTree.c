@@ -77,6 +77,7 @@ void splitChild(BTreeNode *parent, int index) {
     
     for (int i = 0; i < M/2 - 1; i++) {
         new_node->keys[i] = child->keys[i + M/2];
+        new_node->files_ptrs[i] = child->files_ptrs[i + M/2];
     }
     
     if (!child->is_leaf) {
@@ -95,22 +96,26 @@ void splitChild(BTreeNode *parent, int index) {
     
     for (int i = parent->num_keys - 1; i >= index; i--) {
         parent->keys[i + 1] = parent->keys[i];
+        parent->files_ptrs[i + 1] = parent->files_ptrs[i];
     }
     
     parent->keys[index] = child->keys[M/2 - 1];
+    parent->files_ptrs[index] = child->files_ptrs[M/2 - 1];
     parent->num_keys++;
 }
 
-void insertNonFull(BTreeNode *node, int key) {
+void insertNonFull(BTreeNode *node, int key, FILE *file_ptr) {
 
     int i = node->num_keys - 1;
     
     if (node->is_leaf) {
         while (i >= 0 && node->keys[i] > key) {
             node->keys[i + 1] = node->keys[i];
+            node->files_ptrs[i + 1] = node->files_ptrs[i];
             i--;
         }
         node->keys[i + 1] = key;
+        node->files_ptrs[i + 1] = file_ptr;
         node->num_keys++;
     } else {
         while (i >= 0 && node->keys[i] > key) {
@@ -125,11 +130,11 @@ void insertNonFull(BTreeNode *node, int key) {
                 i++;
             }
         }
-        insertNonFull(node->children[i], key);
+        insertNonFull(node->children[i], key, file_ptr);
     }
 }
 
-void Insert(BTree *b_tree, int key) {
+void Insert(BTree *b_tree, int key, FILE  *file_ptr) {
 
     BTreeNode *aux_node = b_tree->root;
 
@@ -137,6 +142,7 @@ void Insert(BTree *b_tree, int key) {
         // Árvore vazia
         b_tree->root = createBTreeNode(true);
         b_tree->root->keys[0] = key;
+        b_tree->root->files_ptrs[0] = file_ptr;
         b_tree->root->num_keys = 1;
     } else {
         if (aux_node->num_keys == M - 1) {
@@ -146,7 +152,7 @@ void Insert(BTree *b_tree, int key) {
             splitChild(new_root, 0);
             b_tree->root = new_root;
         }
-        insertNonFull(b_tree->root, key);
+        insertNonFull(b_tree->root, key, file_ptr);
     }
 }
 
@@ -184,6 +190,16 @@ BTreeNode * searchBTree(BTreeNode *node,int key){
         int ind = lowerBound(aux_node->keys,aux_node->num_keys,key);
         if (ind < aux_node->num_keys && aux_node->keys[ind] == key) {
             printf("Valor encontrado : %d\n",aux_node->keys[ind]);
+            // Imprime o conteúdo do arquivo associado
+            FILE *fp = aux_node->files_ptrs[ind];
+            if (fp) {
+                char buffer[256];
+                while (fgets(buffer, sizeof(buffer), fp)) {
+                    printf("%s", buffer);
+                }
+            } else {
+                printf("Arquivo não encontrado ou não pode ser aberto.\n");
+            }
             return aux_node;
         }
         if(aux_node->is_leaf) return NULL;
