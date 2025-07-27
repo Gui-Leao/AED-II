@@ -1,12 +1,39 @@
 #include "BTree.h"
 #include "queue.h"
 
-typedef struct {
-    unsigned int id;          
-    char nome[50];
-    int idade;
-} Aluno;
 
+typedef struct {
+    unsigned int id;
+    char name[50];
+    int age;
+} Student;
+
+Student * createStudent(){
+    Student *student = (Student*)malloc(sizeof(Student));
+    if (student){
+        scanf("%u", &student->id);
+        getchar();
+        fgets(student->name, sizeof(student->name), stdin);
+        student->name[strcspn(student->name, "\n")] = 0;
+        scanf("%d", &student->age);
+        getchar();
+    }
+    return student;
+}
+
+long saveInFile(Student *student) {
+    FILE *fp = fopen("DB/alunos.txt", "a+");
+    long offset = -1;
+    if (fp) {
+        fseek(fp, 0, SEEK_END);
+        offset = ftell(fp);
+        fprintf(fp, "%u %s %d\n", student->id, student->name, student->age);
+        fclose(fp);
+    }
+    return offset;
+}
+
+            
 int main(){
     unsigned int value;
     char opc[20];
@@ -15,23 +42,10 @@ int main(){
 
     while(scanf("%s",opc) != EOF){
         if (strcmp("insert",opc)==0){
-            Aluno aluno;
-            scanf("%u", &aluno.id);
-            getchar(); // consome o '\n' após o id
-            fgets(aluno.nome, sizeof(aluno.nome), stdin);
-            aluno.nome[strcspn(aluno.nome, "\n")] = 0; // remove o '\n' do final
-            scanf("%d", &aluno.idade);
-            getchar(); // consome o '\n' após a idade
-
-            char filename[64];
-            snprintf(filename, sizeof(filename), "DB/aluno_%u.txt", aluno.id);
-            FILE *fp = fopen(filename, "w");
-            if (fp) {
-                fprintf(fp, "%u %s %d\n", aluno.id, aluno.nome, aluno.idade);
-                fclose(fp);
-                fp = fopen(filename, "r"); 
-            }
-            Insert(b_tree, aluno.id, fp);
+            Student *student = createStudent();
+            // Salva no arquivo único e obtém offset
+            long offset = saveInFile(student);
+            Insert(b_tree, student->id, offset);
         }
         // else if (strcmp("delete",opc)==0){
         //     scanf("%d",&value);
