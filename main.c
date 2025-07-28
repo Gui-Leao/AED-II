@@ -39,20 +39,20 @@ long saveInFile(Student *student) {
 int main(){
     unsigned int value;
     char opc[20];
-    char tipo[10];
-    clock_t start,end;
+    char type[10];
     double duration;
 
     BTree *b_tree = NULL;
     BPlusTree *bplus_tree = NULL;
 
     printf("Escolha a árvore (btree/bplustree): ");
-    scanf("%s", tipo);
+    scanf("%s", type);
     getchar();
-    if (strcmp(tipo, "btree") == 0) {
+    if (strcmp(type, "btree") == 0) {
         printf("teste b tree\n");
         b_tree = createBTree();
     } else {
+        printf("teste b plus tree\n");
         bplus_tree = createBPlusTree();
     }
 
@@ -81,30 +81,22 @@ int main(){
             }
         }
         else if (strcmp("range",opc)==0){
-            int start, end;
-            start = clock();
+            int start,end;
             scanf("%d %d", &start, &end);
             if (b_tree && b_tree->root) {
                 printRange(b_tree->root, start, end);
             } else if (bplus_tree && bplus_tree->root) {
                 BPlusPrintRange(bplus_tree->root, start, end);
             }
-            end = clock();
-            duration = ((double)(end - start)) / CLOCKS_PER_SEC;
-            printf("Tempo de execução: %.6f segundos\n", duration);
         }
         else if (strcmp("age",opc)==0){
             int min_age;
-            start=clock();
             scanf("%d", &min_age);
             if (b_tree && b_tree->root) {
                 printAgeGreaterThan(b_tree->root, min_age);
             } else if (bplus_tree && bplus_tree->root) {
                 BPlusPrintAgeGreaterThan(bplus_tree->root, min_age);
             }
-            end = clock();
-            duration = ((double)(end - start)) / CLOCKS_PER_SEC;
-            printf("Tempo de execução: %.6f segundos\n", duration);
         }
         else if (strcmp("in-order",opc)==0){
             if (b_tree && b_tree->root) {

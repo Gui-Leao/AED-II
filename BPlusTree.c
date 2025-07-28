@@ -28,43 +28,6 @@ BPlusTreeNode *createBPlusTreeNode(bool is_leaf) {
     return new_node;
 }
 
-// void splitChildBP(BPlusTreeNode *parent, int index) {
-
-//     BPlusTreeNode *child = parent->ptrs.children[index];
-//     BPlusTreeNode *new_node = createBPlusTreeNode(child->is_leaf);
-
-//     int mid = BPLUS_M / 2;
-//     new_node->num_keys = child->num_keys - mid;
-
-//     if (child->is_leaf) {
-
-//         for (int i = 0; i < new_node->num_keys; i++) {
-//             new_node->keys[i] = child->keys[mid + i];
-//             new_node->ptrs.leaf.offsets[i] = child->ptrs.leaf.offsets[mid + i];
-//         }
-//         new_node->ptrs.leaf.next = child->ptrs.leaf.next;
-//         child->ptrs.leaf.next = new_node;
-//         child->num_keys = mid;
-//     } else {
-
-//         for (int i = 0; i < new_node->num_keys; i++) {
-//             new_node->keys[i] = child->keys[mid + i];
-//         }
-//         for (int i = 0; i <= new_node->num_keys; i++) {
-//             new_node->ptrs.children[i] = child->ptrs.children[mid + i];
-//         }
-//         child->num_keys = mid - 1;
-//     }
-
-//     for (int i = parent->num_keys; i > index; i--) {
-//         parent->ptrs.children[i + 1] = parent->ptrs.children[i];
-//         parent->keys[i] = parent->keys[i - 1];
-//     }
-//     parent->ptrs.children[index + 1] = new_node;
-//     parent->keys[index] = child->keys[mid];
-//     parent->num_keys++;
-// }
-
 
 void splitChildBP(BPlusTreeNode *parent, int index) {
     BPlusTreeNode *child = parent->ptrs.children[index];
@@ -125,28 +88,6 @@ void splitChildBP(BPlusTreeNode *parent, int index) {
     }
 }
 
-
-// void insertNonFullBP(BPlusTreeNode *node, int key, long offset) {
-//     int i = node->num_keys - 1;
-//     if (node->is_leaf) {
-//         while (i >= 0 && node->keys[i] > key) {
-//             node->keys[i + 1] = node->keys[i];
-//             node->ptrs.leaf.offsets[i + 1] = node->ptrs.leaf.offsets[i];
-//             i--;
-//         }
-//         node->keys[i + 1] = key;
-//         node->ptrs.leaf.offsets[i + 1] = offset;
-//         node->num_keys++;
-//     } else {
-//         while (i >= 0 && node->keys[i] > key) i--;
-//         i++;
-//         if (node->ptrs.children[i]->num_keys == BPLUS_M - 1) {
-//             splitChildBP(node, i);
-//             if (node->keys[i] < key) i++;
-//         }
-//         insertNonFullBP(node->ptrs.children[i], key, offset);
-//     }
-// }
 
 void insertNonFullBP(BPlusTreeNode *node, int key, long offset) {
     int i = node->num_keys - 1;
@@ -289,7 +230,7 @@ void BPlusPrintAgeGreaterThan(BPlusTreeNode *root, int min_age) {
                 if (sscanf(buffer, "%u %49[^0-9] %d", &id, name, &age) == 3) {
                     if (age > min_age) {
                         buffer[strcspn(buffer, "\n")] = 0;
-                        //printf("Registro: %s\n", buffer);
+                        printf("Registro: %s\n", buffer);
                     }
                 }
             }

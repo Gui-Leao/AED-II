@@ -234,37 +234,6 @@ void printRange(BTreeNode *root, int start, int end) {
     }
 }
 
-// // Imprime registros cuja idade é maior que min_age
-// void printAgeGreaterThan(BTreeNode *root, int min_age) {
-
-//     if (root){
-//         int i;
-//         for (i = 0; i < root->num_keys; i++) {
-//             printAgeGreaterThan(root->children[i], min_age);
-//             FILE *fp = fopen("DB/alunos.txt", "r");
-//             if (fp) {
-//                 fseek(fp, root->offsets[i], SEEK_SET);
-//                 char buffer[256];
-//                 if (fgets(buffer, sizeof(buffer), fp)) {
-//                     unsigned int id;
-//                     char name[50];
-//                     int age;
-//                     if (sscanf(buffer, "%u %[^\t\n] %d", &id, name, &age) == 3) {
-//                         printf("%u",id);
-//                         if (age > min_age) {
-//                             printf("Registro: %s", buffer);
-//                         }
-//                     }
-//                 }
-//                 fclose(fp);
-//             }
-//         }
-//         printAgeGreaterThan(root->children[i], min_age);
-//     }
-
-// }
-
-
 
 void printAgeGreaterThan(BTreeNode *root, int min_age) {
 
@@ -282,7 +251,7 @@ void printAgeGreaterThan(BTreeNode *root, int min_age) {
                 if (sscanf(buffer, "%u %49[^0-9] %d", &id, name, &age) == 3) {
                     name[strcspn(name, " \n")] = '\0';
                     if (age > min_age) {
-                        //printf("%s",buffer);
+                        printf("%s",buffer);
                     }
                 } else {
                     printf("Erro ao parsear linha: %s\n", buffer);
