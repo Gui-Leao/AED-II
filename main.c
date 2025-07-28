@@ -1,5 +1,7 @@
 #include "BTree.h"
+#include "BPlusTree.h"
 #include "queue.h"
+#include <time.h>
 
 
 typedef struct {
@@ -37,49 +39,79 @@ long saveInFile(Student *student) {
 int main(){
     unsigned int value;
     char opc[20];
-    BTree *b_tree= createBTree();
-    //BTreeNode *root = NULL;
+    char tipo[10];
+    clock_t start,end;
+    double duration;
+
+    BTree *b_tree = NULL;
+    BPlusTree *bplus_tree = NULL;
+
+    printf("Escolha a árvore (btree/bplustree): ");
+    scanf("%s", tipo);
+    getchar();
+    if (strcmp(tipo, "btree") == 0) {
+        printf("teste b tree\n");
+        b_tree = createBTree();
+    } else {
+        bplus_tree = createBPlusTree();
+    }
 
     while(scanf("%s",opc) != EOF){
         if (strcmp("insert",opc)==0){
             Student *student = createStudent();
-            // Salva no arquivo único e obtém offset
             long offset = saveInFile(student);
-            Insert(b_tree, student->id, offset);
+            if (b_tree)
+                Insert(b_tree, student->id, offset);
+            else
+                BPlusInsert(bplus_tree, student->id, offset);
         }
-        // else if (strcmp("delete",opc)==0){
-        //     scanf("%d",&value);
-        //     rem_node = removeTree(t,value);
-        //     if(rem_node!=NULL){
-        //         printf("%d\n",rem_node->value);
-        //     }
-        // }
         else if (strcmp("print",opc)==0){
-            if(b_tree->root){
+            if (b_tree && b_tree->root) {
                 printInLevels(b_tree->root);
+            } else if (bplus_tree && bplus_tree->root) {
+                BPlusPrintInLevels(bplus_tree->root);
             }
-        
         }
         else if (strcmp("search",opc)==0){
-            if(b_tree->root){
-                scanf("%d",&value);
-                BTreeNode *node = searchBTree(b_tree->root,value);
-                // if(node){
-                //     inOrder(node);
-                //     printf("\n");
-                // }
-                    
-                //else printf("Não encontrado !!\n");
-            
+            scanf("%d", &value);
+            if (b_tree && b_tree->root) {
+                searchBTree(b_tree->root, value);
+            } else if (bplus_tree && bplus_tree->root) {
+                BPlusSearch(bplus_tree->root, value);
             }
         }
-
+        else if (strcmp("range",opc)==0){
+            int start, end;
+            start = clock();
+            scanf("%d %d", &start, &end);
+            if (b_tree && b_tree->root) {
+                printRange(b_tree->root, start, end);
+            } else if (bplus_tree && bplus_tree->root) {
+                BPlusPrintRange(bplus_tree->root, start, end);
+            }
+            end = clock();
+            duration = ((double)(end - start)) / CLOCKS_PER_SEC;
+            printf("Tempo de execução: %.6f segundos\n", duration);
+        }
+        else if (strcmp("age",opc)==0){
+            int min_age;
+            start=clock();
+            scanf("%d", &min_age);
+            if (b_tree && b_tree->root) {
+                printAgeGreaterThan(b_tree->root, min_age);
+            } else if (bplus_tree && bplus_tree->root) {
+                BPlusPrintAgeGreaterThan(bplus_tree->root, min_age);
+            }
+            end = clock();
+            duration = ((double)(end - start)) / CLOCKS_PER_SEC;
+            printf("Tempo de execução: %.6f segundos\n", duration);
+        }
         else if (strcmp("in-order",opc)==0){
-            if(b_tree->root){
+            if (b_tree && b_tree->root) {
                 inOrder(b_tree->root);
                 printf("\n");
             }
         }
-       }
+    }
     return 0;
 }

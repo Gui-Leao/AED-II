@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define M 10
+#define M 204
 
 typedef struct b_tree_node{
 
@@ -33,6 +33,8 @@ void insertNonFull(BTreeNode *node, int key, long offset);
 void splitChild(BTreeNode *parent, int index);
 int lowerBound(int keus[],int n, int key);
 BTreeNode * searchBTree(BTreeNode *node,int key);
+void printRange(BTreeNode *root, int start, int end);
+void printAgeGreaterThan(BTreeNode *root, int min_age);
 
 
 #endif 

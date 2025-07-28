@@ -64,7 +64,7 @@ void printInLevels(BTreeNode *raiz) {
 
         }
 
-        printf("\n"); // Quebra de linha para separar os níveis
+        printf("\n"); 
     }
 }
 
@@ -72,21 +72,22 @@ void splitChild(BTreeNode *parent, int index) {
 
     BTreeNode *child = parent->children[index];
     BTreeNode *new_node = createBTreeNode(child->is_leaf);
+   
+    int mid = M/2;
+    new_node->num_keys = mid - 1;
     
-    new_node->num_keys = M/2 - 1;
-    
-    for (int i = 0; i < M/2 - 1; i++) {
-        new_node->keys[i] = child->keys[i + M/2];
-        new_node->offsets[i] = child->offsets[i + M/2];
+    for (int i = 0; i < mid - 1; i++) {
+        new_node->keys[i] = child->keys[i + mid];
+        new_node->offsets[i] = child->offsets[i + mid];
     }
     
     if (!child->is_leaf) {
-        for (int i = 0; i < M/2; i++) {
-            new_node->children[i] = child->children[i + M/2];
+        for (int i = 0; i < mid; i++) {
+            new_node->children[i] = child->children[i + mid];
         }
     }
     
-    child->num_keys = M/2 - 1;
+    child->num_keys = mid - 1;
     
     for (int i = parent->num_keys; i > index; i--) {
         parent->children[i + 1] = parent->children[i];
@@ -99,8 +100,8 @@ void splitChild(BTreeNode *parent, int index) {
         parent->offsets[i + 1] = parent->offsets[i];
     }
     
-    parent->keys[index] = child->keys[M/2 - 1];
-    parent->offsets[index] = child->offsets[M/2 - 1];
+    parent->keys[index] = child->keys[mid - 1];
+    parent->offsets[index] = child->offsets[mid - 1];
     parent->num_keys++;
 }
 
@@ -211,3 +212,84 @@ BTreeNode * searchBTree(BTreeNode *node,int key){
     return NULL;
 }
 
+
+void printRange(BTreeNode *root, int start, int end) {
+    
+    if (root) {
+        FILE *fp = fopen("DB/alunos.txt", "r");
+        if (!fp) return;
+        int i;
+        for (i = 0; i < root->num_keys; i++) {
+            printRange(root->children[i], start, end);
+            if (root->keys[i] >= start && root->keys[i] <= end) {
+                fseek(fp, root->offsets[i], SEEK_SET);
+                char buffer[256];
+                if (fgets(buffer, sizeof(buffer), fp)) {
+                    printf("Registro: %s", buffer);
+                }
+            }
+        }
+        printRange(root->children[i], start, end);
+        fclose(fp);
+    }
+}
+
+// // Imprime registros cuja idade é maior que min_age
+// void printAgeGreaterThan(BTreeNode *root, int min_age) {
+
+//     if (root){
+//         int i;
+//         for (i = 0; i < root->num_keys; i++) {
+//             printAgeGreaterThan(root->children[i], min_age);
+//             FILE *fp = fopen("DB/alunos.txt", "r");
+//             if (fp) {
+//                 fseek(fp, root->offsets[i], SEEK_SET);
+//                 char buffer[256];
+//                 if (fgets(buffer, sizeof(buffer), fp)) {
+//                     unsigned int id;
+//                     char name[50];
+//                     int age;
+//                     if (sscanf(buffer, "%u %[^\t\n] %d", &id, name, &age) == 3) {
+//                         printf("%u",id);
+//                         if (age > min_age) {
+//                             printf("Registro: %s", buffer);
+//                         }
+//                     }
+//                 }
+//                 fclose(fp);
+//             }
+//         }
+//         printAgeGreaterThan(root->children[i], min_age);
+//     }
+
+// }
+
+
+
+void printAgeGreaterThan(BTreeNode *root, int min_age) {
+
+    if (root) {
+        FILE *fp = fopen("DB/alunos.txt", "r");
+        if (!fp) return;
+        for (int i = 0; i < root->num_keys; i++) {
+            printAgeGreaterThan(root->children[i], min_age);
+            fseek(fp, root->offsets[i], SEEK_SET);
+            char buffer[256];
+            if (fgets(buffer, sizeof(buffer), fp) != NULL) {
+                unsigned int id;
+                char name[50];
+                int age;
+                if (sscanf(buffer, "%u %49[^0-9] %d", &id, name, &age) == 3) {
+                    name[strcspn(name, " \n")] = '\0';
+                    if (age > min_age) {
+                        //printf("%s",buffer);
+                    }
+                } else {
+                    printf("Erro ao parsear linha: %s\n", buffer);
+                }
+            }
+        }
+        printAgeGreaterThan(root->children[root->num_keys], min_age);
+        fclose(fp);
+    }
+}
