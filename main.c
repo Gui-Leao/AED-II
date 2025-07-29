@@ -8,28 +8,28 @@ typedef struct {
     unsigned int id;
     char name[50];
     int age;
-} Student;
+} Pessoa;
 
-Student * createStudent(){
-    Student *student = (Student*)malloc(sizeof(Student));
-    if (student){
-        scanf("%u", &student->id);
+Pessoa * createPessoa(){
+    Pessoa *pessoa = (Pessoa*)malloc(sizeof(Pessoa));
+    if (pessoa){
+        scanf("%u", &pessoa->id);
         getchar();
-        fgets(student->name, sizeof(student->name), stdin);
-        student->name[strcspn(student->name, "\n")] = 0;
-        scanf("%d", &student->age);
+        fgets(pessoa->name, sizeof(pessoa->name), stdin);
+        pessoa->name[strcspn(pessoa->name, "\n")] = 0;
+        scanf("%d", &pessoa->age);
         getchar();
     }
-    return student;
+    return pessoa;
 }
 
-long saveInFile(Student *student) {
+long saveInFile(Pessoa *pessoa) {
     FILE *fp = fopen("DB/alunos.txt", "a+");
     long offset = -1;
     if (fp) {
         fseek(fp, 0, SEEK_END);
         offset = ftell(fp);
-        fprintf(fp, "%u %s %d\n", student->id, student->name, student->age);
+        fprintf(fp, "%u %s %d\n", pessoa->id, pessoa->name, pessoa->age);
         fclose(fp);
     }
     return offset;
@@ -39,31 +39,30 @@ long saveInFile(Student *student) {
 int main(){
     unsigned int value;
     char opc[20];
-    char type[10];
+    char tipo[10];
+    clock_t start,end;
     double duration;
 
     BTree *b_tree = NULL;
     BPlusTree *bplus_tree = NULL;
 
     printf("Escolha a árvore (btree/bplustree): ");
-    scanf("%s", type);
+    scanf("%s", tipo);
     getchar();
-    if (strcmp(type, "btree") == 0) {
-        printf("teste b tree\n");
+    if (strcmp(tipo, "btree") == 0) {
         b_tree = createBTree();
     } else {
-        printf("teste b plus tree\n");
         bplus_tree = createBPlusTree();
     }
 
     while(scanf("%s",opc) != EOF){
         if (strcmp("insert",opc)==0){
-            Student *student = createStudent();
-            long offset = saveInFile(student);
+            Pessoa *pessoa = createPessoa();
+            long offset = saveInFile(pessoa);
             if (b_tree)
-                Insert(b_tree, student->id, offset);
+                Insert(b_tree, pessoa->id, offset);
             else
-                BPlusInsert(bplus_tree, student->id, offset);
+                BPlusInsert(bplus_tree, pessoa->id, offset);
         }
         else if (strcmp("print",opc)==0){
             if (b_tree && b_tree->root) {
@@ -81,22 +80,30 @@ int main(){
             }
         }
         else if (strcmp("range",opc)==0){
-            int start,end;
+            int start, end;
+            start = clock();
             scanf("%d %d", &start, &end);
             if (b_tree && b_tree->root) {
                 printRange(b_tree->root, start, end);
             } else if (bplus_tree && bplus_tree->root) {
                 BPlusPrintRange(bplus_tree->root, start, end);
             }
+            end = clock();
+            duration = ((double)(end - start)) / CLOCKS_PER_SEC;
+            printf("Tempo de execução: %.6f segundos\n", duration);
         }
         else if (strcmp("age",opc)==0){
             int min_age;
+            start=clock();
             scanf("%d", &min_age);
             if (b_tree && b_tree->root) {
                 printAgeGreaterThan(b_tree->root, min_age);
             } else if (bplus_tree && bplus_tree->root) {
                 BPlusPrintAgeGreaterThan(bplus_tree->root, min_age);
             }
+            end = clock();
+            duration = ((double)(end - start)) / CLOCKS_PER_SEC;
+            printf("Tempo de execução: %.6f segundos\n", duration);
         }
         else if (strcmp("in-order",opc)==0){
             if (b_tree && b_tree->root) {
