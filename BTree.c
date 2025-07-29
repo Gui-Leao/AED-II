@@ -69,43 +69,46 @@ void printInLevels(BTreeNode *raiz) {
 }
 
 void splitChild(BTreeNode *parent, int index) {
+    // Obtém o filho a ser dividido
 
     BTreeNode *child = parent->children[index];
+    // Cria novo nó que receberá metade das chaves/filhos
     BTreeNode *new_node = createBTreeNode(child->is_leaf);
    
     int mid = M/2;
     new_node->num_keys = mid - 1;
-    
+    // Copia metade das chaves e offsets para o novo nó
     for (int i = 0; i < mid - 1; i++) {
         new_node->keys[i] = child->keys[i + mid];
         new_node->offsets[i] = child->offsets[i + mid];
     }
-    
+    // Se não for folha, copia os filhos correspondentes
     if (!child->is_leaf) {
         for (int i = 0; i < mid; i++) {
             new_node->children[i] = child->children[i + mid];
         }
     }
-    
+    // Atualiza número de chaves do filho original
     child->num_keys = mid - 1;
-    
+    // Move filhos do pai para abrir espaço para o novo nó
     for (int i = parent->num_keys; i > index; i--) {
         parent->children[i + 1] = parent->children[i];
     }
-    
+    // Liga novo nó ao pai
     parent->children[index + 1] = new_node;
-    
+    // Move chaves/offsets do pai para abrir espaço para a chave promovida
     for (int i = parent->num_keys - 1; i >= index; i--) {
         parent->keys[i + 1] = parent->keys[i];
         parent->offsets[i + 1] = parent->offsets[i];
     }
-    
+    // Promove a chave do meio para o pai
     parent->keys[index] = child->keys[mid - 1];
     parent->offsets[index] = child->offsets[mid - 1];
     parent->num_keys++;
 }
 
 void insertNonFull(BTreeNode *node, int key, long offset) {
+    // Se for folha, insere a chave na posição correta
 
     int i = node->num_keys - 1;
     
@@ -119,21 +122,25 @@ void insertNonFull(BTreeNode *node, int key, long offset) {
         node->offsets[i + 1] = offset;
         node->num_keys++;
     } else {
+        // Se não for folha, encontra o filho correto
         while (i >= 0 && node->keys[i] > key) {
             i--;
         }
         i++;
+        // Se o filho está cheio, divide antes de descer
         if (node->children[i]->num_keys == M - 1) {
             splitChild(node, i);
             if (node->keys[i] < key) {
                 i++;
             }
         }
+        // Insere recursivamente no filho correto
         insertNonFull(node->children[i], key, offset);
     }
 }
 
 void Insert(BTree *b_tree, int key, long offset) {
+    // Se a árvore está vazia, cria a raiz
 
     BTreeNode *aux_node = b_tree->root;
 
@@ -144,6 +151,7 @@ void Insert(BTree *b_tree, int key, long offset) {
         b_tree->root->offsets[0] = offset;
         b_tree->root->num_keys = 1;
     } else {
+        // Se a raiz está cheia, cria nova raiz e divide
         if (aux_node->num_keys == M - 1) {
             //Caso o nó esteja cheio
             BTreeNode *new_root = createBTreeNode(false);
@@ -151,11 +159,13 @@ void Insert(BTree *b_tree, int key, long offset) {
             splitChild(new_root, 0);
             b_tree->root = new_root;
         }
+        // Insere normalmente
         insertNonFull(b_tree->root, key, offset);
     }
 }
 
 void inOrder(BTreeNode *root) {
+    // Percorre a árvore em ordem e imprime os ids
 
     if (root != NULL) {
         int i;
@@ -169,6 +179,7 @@ void inOrder(BTreeNode *root) {
 
 
 int lowerBound(int keys[], int n, int key) {
+    // Busca binária para encontrar a posição de inserção/busca
 
     int left = 0, right = n;
 
@@ -183,6 +194,7 @@ int lowerBound(int keys[], int n, int key) {
 }
 
 BTreeNode * searchBTree(BTreeNode *node,int key){
+    // Busca por uma chave na árvore e imprime o registro se encontrado
 
     BTreeNode *aux_node = node;
     while(aux_node){
@@ -214,6 +226,7 @@ BTreeNode * searchBTree(BTreeNode *node,int key){
 
 
 void printRange(BTreeNode *root, int start, int end) {
+    // Imprime todos os registros cujos ids estão no intervalo [start, end]
     
     if (root) {
         FILE *fp = fopen("DB/alunos.txt", "r");
@@ -235,7 +248,9 @@ void printRange(BTreeNode *root, int start, int end) {
 }
 
 
+
 void printAgeGreaterThan(BTreeNode *root, int min_age) {
+    // Imprime todos os registros cuja idade é maior que min_age
 
     if (root) {
         FILE *fp = fopen("DB/alunos.txt", "r");

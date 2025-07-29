@@ -30,12 +30,14 @@ BPlusTreeNode *createBPlusTreeNode(bool is_leaf) {
 
 
 void splitChildBP(BPlusTreeNode *parent, int index) {
+    // Divide o filho cheio do nó pai em dois, promovendo a chave do meio
     BPlusTreeNode *child = parent->ptrs.children[index];
     BPlusTreeNode *new_node = createBPlusTreeNode(child->is_leaf);
 
     int mid = BPLUS_M / 2;
 
     if (child->is_leaf) {
+        // Caso folha: divide as chaves e offsets, atualiza ponteiro next
         // Número de chaves no novo nó
         new_node->num_keys = child->num_keys - mid;
 
@@ -61,6 +63,7 @@ void splitChildBP(BPlusTreeNode *parent, int index) {
         parent->keys[index] = new_node->keys[0];  // separador para o pai
         parent->num_keys++;
     } else {
+        // Caso nó interno: divide as chaves e filhos, promove chave do meio
         // Divisão de nó interno
         new_node->num_keys = child->num_keys - mid - 1;
 
@@ -90,9 +93,11 @@ void splitChildBP(BPlusTreeNode *parent, int index) {
 
 
 void insertNonFullBP(BPlusTreeNode *node, int key, long offset) {
+    // Insere uma chave em um nó que não está cheio
     int i = node->num_keys - 1;
 
     if (node->is_leaf) {
+        // Se for folha, insere a chave na posição correta
         // Desloca para abrir espaço mantendo ordenação
         while (i >= 0 && node->keys[i] > key) {
             node->keys[i + 1] = node->keys[i];
@@ -104,6 +109,7 @@ void insertNonFullBP(BPlusTreeNode *node, int key, long offset) {
         node->ptrs.leaf.offsets[i + 1] = offset;
         node->num_keys++;
     } else {
+        // Se não for folha, encontra o filho correto
         // Busca o filho onde a chave deve ser inserida
         while (i >= 0 && node->keys[i] > key) i--;
         i++;
@@ -122,6 +128,7 @@ void insertNonFullBP(BPlusTreeNode *node, int key, long offset) {
 
 
 void BPlusInsert(BPlusTree *tree, int key, long offset) {
+    // Insere uma chave na árvore, criando nova raiz se necessário
     if (!tree->root) {
         tree->root = createBPlusTreeNode(true);
         tree->root->keys[0] = key;
@@ -140,6 +147,7 @@ void BPlusInsert(BPlusTree *tree, int key, long offset) {
 }
 
 BPlusTreeNode *BPlusSearch(BPlusTreeNode *node, int key) {
+    // Busca por uma chave na árvore e imprime o registro se encontrado
     while (node) {
         int i = 0;
         while (i < node->num_keys && key >= node->keys[i]) i++;
@@ -168,6 +176,7 @@ BPlusTreeNode *BPlusSearch(BPlusTreeNode *node, int key) {
 }
 
 void BPlusPrintInLevels(BPlusTreeNode *root) {
+    // Imprime a árvore B+ por níveis (BFS)
     if (!root) return;
     BPlusTreeNode *level[100];
     int front = 0, rear = 0;
@@ -193,6 +202,7 @@ void BPlusPrintInLevels(BPlusTreeNode *root) {
 }
 
 void BPlusPrintRange(BPlusTreeNode *root, int start, int end) {
+    // Imprime todos os registros cujos ids estão no intervalo [start, end]
     if (!root) return;
     BPlusTreeNode *node = root;
     while (!node->is_leaf) node = node->ptrs.children[0];
@@ -214,6 +224,7 @@ void BPlusPrintRange(BPlusTreeNode *root, int start, int end) {
 }
 
 void BPlusPrintAgeGreaterThan(BPlusTreeNode *root, int min_age) {
+    // Imprime todos os registros cuja idade é maior que min_age
     if (!root) return;
     BPlusTreeNode *node = root;
     while (!node->is_leaf) node = node->ptrs.children[0];
