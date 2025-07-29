@@ -27,11 +27,12 @@ Ao iniciar, escolha o tipo de árvore: `btree` ou `bplustree`.
 
 - `insert` — Insere um novo aluno (id, nome, idade)
 Ex:
-`insert
+```
+insert
 <id_da_pessoa>
 <nome_da_pessoa>
 <idade_da_pessoa>
-`
+```
 - `search <id>` — Busca aluno pelo id
 - `print` — Imprime a árvore por níveis
 - `range <start> <end>` — Imprime registros no intervalo de ids
