@@ -225,7 +225,7 @@ void printRange(BTreeNode *root, int start, int end) {
                 fseek(fp, root->offsets[i], SEEK_SET);
                 char buffer[256];
                 if (fgets(buffer, sizeof(buffer), fp)) {
-                    printf("Registro: %s", buffer);
+                    //printf("Registro: %s", buffer);
                 }
             }
         }
